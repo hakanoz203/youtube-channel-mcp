@@ -28,9 +28,6 @@ Claude reads your **real private channel data** and can **update video SEO direc
 Claude  →  YouTube MCP Server  →  YouTube APIs  →  Your Channel Data
 (you)        (this repo)           (OAuth2)         (stays local)
 ```
-
-**Everything runs on YOUR machine. Read + Write access. Nothing sent to third parties.**
-
 ---
 
 ## Tools Available (10 total)
@@ -71,58 +68,9 @@ npx youtube-studio-mcp
 npm install -g youtube-studio-mcp
 ```
 
-### Option C: Clone + Run
-
-```bash
-git clone https://github.com/adityaarsharma/youtube-studio-mcp.git
-cd youtube-studio-mcp
-npm install
-```
-
-### Option D: Download ZIP
-
-1. Click **Code → Download ZIP** above
-2. Unzip → open Terminal → `cd` into the folder
-3. Run `npm install`
-
 ---
 
-## Setup (15 minutes, one time)
-
-### Step 1 — Google Cloud Project
-
-1. Go to [console.cloud.google.com](https://console.cloud.google.com)
-2. Create a new project (name: `YouTube MCP`)
-3. Enable these 2 APIs:
-   - **YouTube Data API v3** (for video data + updates)
-   - **YouTube Analytics API** (for private analytics)
-
-### Step 2 — OAuth Consent Screen
-
-1. Go to **APIs & Services → OAuth consent screen**
-2. Select **External** → Create
-3. Fill in app name (`YouTube MCP`), your email
-4. Skip scopes → Add your Gmail as test user → Save
-
-### Step 3 — Create OAuth Credentials
-
-1. Go to **APIs & Services → Credentials**
-2. Click **+ Create Credentials → OAuth client ID**
-3. Select **Desktop app** → Create
-4. **Download JSON** → rename to `credentials.json`
-5. Move into this repo folder
-
-### Step 4 — Authenticate
-
-```bash
-node auth.js
-```
-
-Browser opens → log in with the Google account that owns your YouTube channel → Allow.
-
-> **"This app isn't verified"** warning is normal for personal apps. Click **Advanced → Go to YouTube MCP (unsafe)**.
-
-### Step 5 — Connect to Claude
+### Connect to Claude
 
 #### Claude Desktop
 
@@ -217,23 +165,6 @@ Why did the lower ones underperform? What would you change?
 
 ---
 
-## 8 Bundled AI Skills for YouTube Creators
-
-This repo includes **ready-to-use AI skill files** in the `skills/` folder that supercharge your YouTube workflow. Each skill is a structured prompt that makes Claude act as a specialized team member.
-
-**Install any skill:** Copy the `.md` file into your Claude skills directory and it activates automatically.
-
-| Skill | What It Does | Trigger Phrases |
-|-------|-------------|-----------------|
-| **[SEO Optimizer](skills/youtube-seo-optimizer.md)** | Optimizes titles, descriptions, tags. Protects existing ranking keywords. 3 title options + full description + 20 tags | "optimize this video", "write title", "write tags" |
-| **[Channel Audit](skills/youtube-channel-audit.md)** | Full channel health report — views, subs, retention, traffic sources, audience demographics. Identifies problems and prescribes fixes | "audit my channel", "why am I not growing", "channel report" |
-| **[Topic Finder](skills/youtube-topic-finder.md)** | 12 data-backed video topics with keyword volumes, SERP gaps, and competitor analysis. Tier 1/2/3 prioritization | "video ideas", "what should I make next", "find topics" |
-| **[Thumbnail Auditor](skills/youtube-thumbnail-auditor.md)** | 20-point thumbnail scoring (66-point scale). Grades A-F with specific redesign instructions | "audit thumbnail", "review this thumbnail", "CTR is low" |
-| **[Script Writer](skills/youtube-script-writer.md)** | Full production-ready scripts with word-for-word narration, screen cues, timestamps, editor brief, and companion Short script | "write script", "video script", "tutorial script" |
-| **[Competitor Spy](skills/youtube-competitor-spy.md)** | Competitor channel analysis, SERP battle maps, 10 "steal-worthy" topics with differentiation angles | "competitor analysis", "who's beating me", "content gaps" |
-| **[Video Analyzer](skills/youtube-video-analyzer.md)** | Deep single-video analysis — SEO score (21-point), performance benchmarks, and optimized rewrite | "analyze this video", "why isn't this performing", "video audit" |
-| **[Shorts Repurposer](skills/youtube-shorts-repurposer.md)** | Turn any long-form video into 3-5 Shorts with hooks, text overlays, and posting strategy | "make shorts from this", "repurpose video", "extract shorts" |
-
 ### How the Skills + MCP Work Together
 
 ```
@@ -265,63 +196,6 @@ cp skills/youtube-*.md ~/.claude/skills/
 
 ---
 
-## OAuth Scopes
-
-| Scope | Purpose |
-|-------|---------|
-| `youtube` | Read + write video metadata (titles, descriptions, tags) |
-| `youtube.readonly` | Read video data, search, list |
-| `yt-analytics.readonly` | Read private analytics (views, watch time, subs, demographics) |
-| `youtubepartner-channel-audit` | Extended channel audit data |
-
-**To enable write access** (update_video_seo), delete `tokens.json` and re-run `node auth.js`. The new auth flow requests the `youtube` write scope.
-
----
-
-## Privacy & Security
-
-| Question | Answer |
-|----------|--------|
-| Does my data go to any server? | No — runs 100% on your machine |
-| Can it delete videos? | No — only reads data and updates metadata |
-| Is OAuth safe? | Yes — same system used by TubeBuddy, VidIQ |
-| Can I revoke access? | Yes — anytime at myaccount.google.com/permissions |
-
-**Never commit `credentials.json` or `tokens.json` to git.**
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---------|-----|
-| `credentials.json not found` | Download from Google Cloud Console → move to repo folder |
-| `Not authenticated` | Run `node auth.js` |
-| Port 3000 in use | `lsof -ti:3000 \| xargs kill -9` then retry |
-| Claude doesn't show tools | Check JSON syntax in config, restart Claude fully |
-| "App isn't verified" | Click Advanced → Go to YouTube MCP (unsafe) |
-| `update_video_seo` fails | Delete `tokens.json`, re-run `node auth.js` for write scope |
-| Quota exceeded | YouTube API free limit: 10,000 units/day. Wait 24h |
-
----
-
-## What's New in v2.1
-
-- **npm package** — `npx youtube-studio-mcp` for zero-install
-- **8 AI skills** — bundled YouTube workflow skills for Claude
-- **MIT License** — free to use, modify, share
-
-## What's New in v2.0
-
-- **`get_video_details`** — Full metadata by video ID or URL. Works for public, unlisted, private, and draft videos
-- **`search_my_videos`** — Search your own uploads by keyword
-- **`update_video_seo`** — Update title, description, tags directly on YouTube
-- **YouTube write scope** — OAuth now requests `youtube` scope for SEO updates
-- **URL parsing** — Pass full YouTube URLs or just video IDs
-- **Privacy status** — All video listings now show public/unlisted/private status
-
----
-
 ## Files
 
 ```
@@ -337,18 +211,6 @@ youtube-studio-mcp/
 
 ---
 
-## Contributing
-
-PRs welcome! Ideas:
-- Transcript extraction (YouTube captions API)
-- YouTube Shorts-specific analytics
-- Revenue/monetization data (YouTube Reporting API)
-- Playlist management tools
-- Comment management tools
-- Thumbnail upload
-
----
-
 ## License
 
 [MIT](LICENSE) — free to use, modify, share.
@@ -357,9 +219,4 @@ PRs welcome! Ideas:
 
 ## Built By
 
-**[Aditya Sharma](https://adityaarsharma.com)** — Building AI tools for creators and marketers.
-
-- [Twitter/X](https://twitter.com/adityaarsharma)
-- [GitHub](https://github.com/adityaarsharma)
-
-If this saved you time — **star the repo** and share with a creator friend!
+Hakan Özdemir & Claude Code
