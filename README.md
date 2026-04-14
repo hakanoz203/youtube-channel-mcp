@@ -1,14 +1,6 @@
 # YouTube MCP Server
 
 > **Connect Claude to your YouTube channel.** Read analytics, fetch full video metadata (including unlisted/private/draft), search your uploads, and update titles/descriptions/tags — all from Claude Desktop, Claude Code, or any MCP client.
-
-[![npm version](https://img.shields.io/npm/v/youtube-studio-mcp?style=for-the-badge&color=CB3837&logo=npm)](https://www.npmjs.com/package/youtube-studio-mcp)
-[![npm downloads](https://img.shields.io/npm/dm/youtube-studio-mcp?style=for-the-badge&color=CB3837&logo=npm)](https://www.npmjs.com/package/youtube-studio-mcp)
-[![GitHub Stars](https://img.shields.io/github/stars/adityaarsharma/youtube-studio-mcp?style=for-the-badge&logo=github)](https://github.com/adityaarsharma/youtube-studio-mcp)
-[![License MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-[![Claude MCP](https://img.shields.io/badge/Claude-MCP%20Server-FF6B35?style=for-the-badge&logo=anthropic)](https://claude.ai)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-43853D?style=for-the-badge&logo=node.js)](https://nodejs.org)
-
 ---
 
 ## What Is This?
