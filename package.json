@@ -1,7 +1,7 @@
 {
   "name": "youtube-channel-mcp",
-  "version": "2.1.0",
-  "description": "MCP server for YouTube — analytics, video metadata, SEO updates. Read your private channel data and update titles/descriptions/tags directly from Claude. OAuth2, 10 tools, works with Claude Desktop + Claude Code.",
+  "version": "2.2.0",
+  "description": "MCP server for YouTube — analytics, video metadata, SEO updates, transcripts. Read your private channel data, update titles/descriptions/tags, and fetch video transcripts directly from Claude. OAuth2, 11 tools, works with Claude Desktop + Claude Code.",
   "type": "module",
   "bin": {
     "youtube-studio-mcp": "server.js"
@@ -49,8 +49,9 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "express": "^4.18.0",
     "googleapis": "^140.0.0",
     "open": "^10.1.0",
-    "express": "^4.18.0"
+    "youtube-transcript": "^1.3.1"
   }
 }

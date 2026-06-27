@@ -22,7 +22,7 @@ Claude  →  YouTube MCP Server  →  YouTube APIs  →  Your Channel Data
 ```
 ---
 
-## Tools Available (10 total)
+## Tools Available (11 total)
 
 ### Video Metadata (Read + Write)
 
@@ -31,6 +31,7 @@ Claude  →  YouTube MCP Server  →  YouTube APIs  →  Your Channel Data
 | `get_video_details` | Full metadata for any video by ID or URL — title, full description, all tags, category, privacy status (public/unlisted/private/draft), stats, duration, thumbnail URL |
 | `search_my_videos` | Search your own channel's videos by keyword. Returns metadata + stats for matching videos |
 | `update_video_seo` | Update title, description, and/or tags on any video directly. Only changes fields you provide |
+| `get_video_transcript` | Fetch the transcript/captions for any public video by ID or URL. Returns full text + timestamped segments. No OAuth, no API quota used |
 
 ### Channel Analytics
 
@@ -192,7 +193,7 @@ cp skills/youtube-*.md ~/.claude/skills/
 
 ```
 youtube-studio-mcp/
-├── server.js          ← MCP server (10 tools)
+├── server.js          ← MCP server (11 tools)
 ├── auth.js            ← Run once to link YouTube account
 ├── package.json       ← Dependencies + npm config
 ├── skills/            ← 8 AI skills for YouTube creators
