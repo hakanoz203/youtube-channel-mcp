@@ -10,6 +10,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
+import { YoutubeTranscript } from "youtube-transcript";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -149,6 +150,54 @@ async function getVideoDetails(auth, videoId) {
     definition: video.contentDetails?.definition,
     // Thumbnail
     thumbnail: video.snippet.thumbnails?.maxres?.url || video.snippet.thumbnails?.high?.url,
+  };
+}
+
+// Fetch a video's transcript/captions via the public timedtext endpoint.
+// No OAuth needed — works for any public video that has captions
+// (manual or auto-generated). Does NOT use the YouTube Data API quota.
+async function getVideoTranscript(videoId, lang) {
+  // Extract video ID from URL if a full URL is passed
+  const idMatch = videoId.match(
+    /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  const cleanId = idMatch ? idMatch[1] : videoId.trim();
+
+  let segments;
+  try {
+    segments = await YoutubeTranscript.fetchTranscript(
+      cleanId,
+      lang ? { lang } : undefined
+    );
+  } catch (err) {
+    // Surface the library's specific errors as readable messages
+    return {
+      error: err.message || String(err),
+      hint: "Captions may be disabled for this video, none exist, or YouTube blocked the request (common on cloud/server IPs). Owner-only videos can use the official captions API instead.",
+      video_id: cleanId,
+    };
+  }
+
+  if (!segments?.length) {
+    return { error: "No transcript available for this video.", video_id: cleanId };
+  }
+
+  // Join into a single readable transcript — the most useful output
+  const text = segments.map((s) => s.text).join(" ").replace(/\s+/g, " ").trim();
+
+  return {
+    video_id: cleanId,
+    url: `https://www.youtube.com/watch?v=${cleanId}`,
+    language: segments[0]?.lang,
+    segmentCount: segments.length,
+    transcript: text,
+    // Raw timestamped segments (offset/duration in the units the source
+    // returns — milliseconds for srv3 captions, seconds for legacy tracks)
+    segments: segments.map((s) => ({
+      text: s.text,
+      offset: s.offset,
+      duration: s.duration,
+    })),
   };
 }
 
@@ -356,7 +405,7 @@ function getDateDaysAgo(days) {
 
 // ─── MCP Server ───────────────────────────────────────────────────────────────
 const server = new Server(
-  { name: "youtube-analytics", version: "2.0.0" },
+  { name: "youtube-analytics", version: "2.2.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -400,6 +449,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             items: { type: "string" },
             description: "New tags array (leave empty to keep current)",
           },
+        },
+        required: ["video_id"],
+      },
+    },
+    {
+      name: "get_video_transcript",
+      description: "Get the transcript/captions for ANY public YouTube video by ID or URL. Returns the full transcript text plus timestamped segments. Works without OAuth and does not use YouTube Data API quota (fetches the public caption track). Captions must exist and not be disabled. Optionally request a specific language.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          video_id: { type: "string", description: "YouTube video ID or full URL (e.g. youtu.be/abc123 or youtube.com/watch?v=abc123)" },
+          lang: { type: "string", description: "Optional language code (ISO 639-1, e.g. 'en', 'es'). Defaults to the video's primary caption track." },
         },
         required: ["video_id"],
       },
@@ -485,6 +546,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           description: args?.description,
           tags: args?.tags,
         });
+        break;
+      case "get_video_transcript":
+        result = await getVideoTranscript(args.video_id, args?.lang);
         break;
       // ── Analytics ───────────────────────────────────────────────────────────
       case "get_channel_overview":
